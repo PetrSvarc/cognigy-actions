@@ -5,6 +5,8 @@ import { useTableData } from './useTableData'
 
 const WEBCHAT_SCRIPT =
   'https://github.com/Cognigy/Webchat/releases/latest/download/webchat.js'
+const WEBCHAT_PLUGIN =
+  'https://PetrSvarc.github.io/cognigy-plugin/plugin.js'
 const WEBCHAT_ENDPOINT =
   'https://cognigy-endpoint-na1.nicecxone.com/ac0b6002f0960b5dffcb867a93477f5271be0e57f2abb55bb1e4e5676473a30e'
 
@@ -26,6 +28,7 @@ type WebchatInstance = {
 }
 
 const { load } = useExternalScript(WEBCHAT_SCRIPT)
+const { load: loadPlugin } = useExternalScript(WEBCHAT_PLUGIN)
 const status = ref<LoaderStatus>('idle')
 const errorMessage = ref<string | null>(null)
 const webchatInstance = ref<WebchatInstance | null>(null)
@@ -53,8 +56,16 @@ const attachAnalyticsLogger = (instance: WebchatInstance | null) => {
       (payloadData as Record<string, unknown>).hasTableData === true
 
     if (hasTablePayload) {
-      console.log('[Cognigy Webchat] storing table data from payload text')
-      setTableData(event.payload?.text ?? '')
+      const pluginData =
+        typeof payloadData === 'object' &&
+        payloadData !== null &&
+        (payloadData as Record<string, unknown>)._plugin &&
+        typeof (payloadData as Record<string, unknown>)._plugin === 'object'
+          ? ((payloadData as Record<string, unknown>)._plugin as Record<string, unknown>).data
+          : undefined
+
+      console.log('[Cognigy Webchat] storing table data from payload data property', pluginData)
+      setTableData(pluginData ?? null)
     }
 
     const shouldCreateChart =
@@ -118,6 +129,7 @@ const init = async () => {
 
   try {
     await load()
+    await loadPlugin()
 
     if (typeof window === 'undefined' || typeof window.initWebchat !== 'function') {
       throw new Error('initWebchat is not available in this environment.')
