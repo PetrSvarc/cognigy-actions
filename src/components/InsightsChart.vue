@@ -6,17 +6,19 @@ import {
   Legend,
   LineElement,
   LinearScale,
+  BarElement,
   PointElement,
   Title,
   Tooltip,
 } from 'chart.js'
-import { Line } from 'vue-chartjs'
+import { Bar, Line } from 'vue-chartjs'
 import { useChartData } from '@/composables/useChartData'
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   LineElement,
+  BarElement,
   PointElement,
   Title,
   Tooltip,
@@ -24,7 +26,7 @@ ChartJS.register(
   Legend,
 )
 
-const { chartData, chartOptions, hasData } = useChartData()
+const { chartData, chartOptions, chartType, hasData } = useChartData()
 </script>
 
 <template>
@@ -36,13 +38,14 @@ const { chartData, chartOptions, hasData } = useChartData()
       </div>
       <span class="pill pill-positive">+18.4%</span>
     </header>
-<div v-if="hasData" class="chart-wrapper">
-  <Line :data="chartData" :options="chartOptions" />
-</div>
-<p v-else class="chart-placeholder">
-  Waiting for Insights data. Ask CXone to send both the `hasTableData` payload and a follow-up message
-  with `createChart: true`.
-</p>
+    <div v-if="hasData" class="chart-wrapper">
+      <component :is="chartType === 'bar' ? Bar : Line" :data="chartData" :options="chartOptions" />
+    </div>
+    <p v-else class="chart-placeholder">
+      Waiting for Insights data. Ask CXone to either send a `chartConfig` object together with
+      <code>createChart: true</code>, or provide the `hasTableData` payload and a follow-up message with
+      <code>createChart: true</code>.
+    </p>
   </section>
 </template>
 

@@ -33,7 +33,7 @@ const status = ref<LoaderStatus>('idle')
 const errorMessage = ref<string | null>(null)
 const webchatInstance = ref<WebchatInstance | null>(null)
 let analyticsAttached = false
-const { setTableData, markChartReady } = useTableData()
+const { setTableData, setChartConfig, markChartReady } = useTableData()
 
 const attachAnalyticsLogger = (instance: WebchatInstance | null) => {
   if (analyticsAttached || !instance?.registerAnalyticsService) return
@@ -75,10 +75,42 @@ const attachAnalyticsLogger = (instance: WebchatInstance | null) => {
 
     if (shouldCreateChart) {
       console.log('[Cognigy Webchat] received createChart flag')
+
+      const chartConfigPayload =
+        typeof payloadData === 'object' &&
+        payloadData !== null &&
+        (payloadData as Record<string, unknown>).chartConfig &&
+        typeof (payloadData as Record<string, unknown>).chartConfig === 'object'
+          ? (payloadData as Record<string, unknown>).chartConfig
+          : null
+
+      if (chartConfigPayload) {
+        console.log('[Cognigy Webchat] storing chart configuration from payload data', chartConfigPayload)
+        setChartConfig(chartConfigPayload)
+      } else {
+        console.warn(
+          '[Cognigy Webchat] createChart flag received without a valid chartConfig object. Falling back to local chart configuration.',
+        )
+        setChartConfig(null)
+      }
+
       markChartReady()
       if (router.currentRoute.value.path !== '/insights') {
         console.log('[Cognigy Webchat] redirecting to /insights')
         router.push('/insights')
+      }
+    }
+
+    const shouldCreateEmailDraft =
+      typeof payloadData === 'object' &&
+      payloadData !== null &&
+      (payloadData as Record<string, unknown>).createEmailDraft === true
+
+    if (shouldCreateEmailDraft) {
+      console.log('[Cognigy Webchat] received createEmailDraft flag')
+      if (router.currentRoute.value.path !== '/email') {
+        console.log('[Cognigy Webchat] redirecting to /email')
+        router.push('/email')
       }
     }
 

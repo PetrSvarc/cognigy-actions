@@ -1,4 +1,4 @@
-import type { ChartData, ChartOptions } from 'chart.js'
+import type { ChartConfiguration, ChartData, ChartOptions } from 'chart.js'
 import { computed } from 'vue'
 import { useTableData } from './useTableData'
 
@@ -16,26 +16,31 @@ const gridColor = 'rgba(12, 93, 173, 0.12)'
 const borderColor = 'rgba(12, 93, 173, 0.9)'
 
 export function useChartData() {
-  const { tableData, shouldCreateChart } = useTableData()
+  const { tableData, shouldCreateChart, chartConfig } = useTableData()
 
-const parsedData = computed<CallReasonEntry[]>(() => {
-  if (!tableData.value) return []
-  try {
-    const parsed = JSON.parse(tableData.value) as TablePayload | CallReasonEntry[]
-    if (Array.isArray(parsed)) {
-      return parsed
+  const parsedData = computed<CallReasonEntry[]>(() => {
+    if (!tableData.value) return []
+    try {
+      const parsed = JSON.parse(tableData.value) as TablePayload | CallReasonEntry[]
+      if (Array.isArray(parsed)) {
+        return parsed
+      }
+      return parsed.callReasons ?? []
+    } catch (error) {
+      console.warn('[Insights] Unable to parse table data payload', error)
+      return []
     }
-    return parsed.callReasons ?? []
-  } catch (error) {
-    console.warn('[Insights] Unable to parse table data payload', error)
-    return []
-  }
-})
+  })
 
   const labels = computed(() => parsedData.value.map((entry) => entry.reason))
   const volumes = computed(() => parsedData.value.map((entry) => entry.volume))
 
-  const chartData = computed<ChartData<'line'>>(() => ({
+  const remoteChartConfig = computed<ChartConfiguration | null>(() => {
+    if (!chartConfig.value || typeof chartConfig.value !== 'object') return null
+    return chartConfig.value as ChartConfiguration
+  })
+
+  const defaultChartData = computed<ChartData>(() => ({
     labels: labels.value,
     datasets: [
       {
@@ -60,7 +65,7 @@ const parsedData = computed<CallReasonEntry[]>(() => {
     ],
   }))
 
-  const chartOptions = computed<ChartOptions<'line'>>(() => ({
+  const defaultChartOptions = computed<ChartOptions>(() => ({
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -106,11 +111,30 @@ const parsedData = computed<CallReasonEntry[]>(() => {
     },
   }))
 
-  const hasData = computed(() => shouldCreateChart.value && volumes.value.length > 0)
+  const chartData = computed<ChartData>(
+    () => (remoteChartConfig.value?.data as ChartData | undefined) ?? defaultChartData.value,
+  )
+
+  const chartOptions = computed<ChartOptions>(
+    () => (remoteChartConfig.value?.options as ChartOptions | undefined) ?? defaultChartOptions.value,
+  )
+
+  const chartType = computed<'line' | 'bar'>(() => {
+    const remoteType = (remoteChartConfig.value?.type as string | undefined)?.toLowerCase()
+    if (remoteType === 'bar') return 'bar'
+    return 'line'
+  })
+
+  const hasData = computed(
+    () =>
+      Boolean(remoteChartConfig.value?.data) ||
+      (shouldCreateChart.value && volumes.value.length > 0),
+  )
 
   return {
     chartData,
     chartOptions,
+    chartType,
     hasData,
   }
 }
