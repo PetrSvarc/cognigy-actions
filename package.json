@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "build:gh-pages": "cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vue-tsc -b && cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vite build",
+    "build:sdk": "cd sdk-app && npm run build",
+    "build": "npm run build:sdk && vue-tsc -b && vite build",
+    "build:gh-pages": "npm run build:sdk && cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vue-tsc -b && cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vite build",
     "preview": "vite preview",
     "deploy": "npm run build:gh-pages && gh-pages -d dist"
   },
