@@ -10,7 +10,10 @@ import {
   PointElement,
   Title,
   Tooltip,
+  type ChartData,
+  type ChartOptions,
 } from 'chart.js'
+import { computed } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
 import { useChartData } from '@/composables/useChartData'
 
@@ -27,6 +30,12 @@ ChartJS.register(
 )
 
 const { chartData, chartOptions, chartType, hasData } = useChartData()
+
+// Type assertions for component props
+const barChartData = computed(() => chartData.value as ChartData<'bar'>)
+const barChartOptions = computed(() => chartOptions.value as ChartOptions<'bar'>)
+const lineChartData = computed(() => chartData.value as ChartData<'line'>)
+const lineChartOptions = computed(() => chartOptions.value as ChartOptions<'line'>)
 </script>
 
 <template>
@@ -39,7 +48,8 @@ const { chartData, chartOptions, chartType, hasData } = useChartData()
       <span class="pill pill-positive">+18.4%</span>
     </header>
     <div v-if="hasData" class="chart-wrapper">
-      <component :is="chartType === 'bar' ? Bar : Line" :data="chartData" :options="chartOptions" />
+      <Bar v-if="chartType === 'bar'" :data="barChartData" :options="barChartOptions" />
+      <Line v-else :data="lineChartData" :options="lineChartOptions" />
     </div>
     <p v-else class="chart-placeholder">
       Waiting for Insights data. Ask CXone to either send a `chartConfig` object together with

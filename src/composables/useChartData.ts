@@ -1,4 +1,9 @@
-import type { ChartConfiguration, ChartData, ChartOptions } from 'chart.js'
+import type {
+  ChartConfiguration,
+  ChartData,
+  ChartOptions,
+  ScriptableContext,
+} from 'chart.js'
 import { computed } from 'vue'
 import { useTableData } from './useTableData'
 
@@ -53,7 +58,7 @@ export function useChartData() {
         pointBackgroundColor: '#fff',
         pointBorderColor: borderColor,
         pointHoverRadius: 5,
-        backgroundColor: (context) => {
+        backgroundColor: (context: ScriptableContext<'line'>) => {
           const { ctx, chartArea } = context.chart
           if (!chartArea) return 'rgba(12, 93, 173, 0.12)'
           const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
