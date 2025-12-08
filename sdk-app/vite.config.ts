@@ -8,6 +8,10 @@ export default defineConfig({
       customElement: true,
     }),
   ],
+  resolve: {
+    // Ensure proper module resolution
+    dedupe: [],
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
@@ -15,6 +19,12 @@ export default defineConfig({
       formats: ['es', 'iife'],
     },
     rollupOptions: {
+      // Bundle all dependencies - don't externalize anything
+      // This ensures the SDK is self-contained and works standalone
+      external: (id) => {
+        // Don't externalize anything - bundle everything
+        return false
+      },
       output: [
         {
           format: 'es',
@@ -32,6 +42,10 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     minify: 'esbuild',
+    // Ensure all dependencies are bundled
+    commonjsOptions: {
+      include: [/node_modules/],
+    },
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
