@@ -1,0 +1,98 @@
+<script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { useCognigyWebchat } from '@/composables/useCognigyWebchat'
+import { useCustomChat } from '@/composables/useCustomChat'
+import { useCXoneWebchat } from '@/composables/useCXoneWebchat'
+import CustomChatModal from '@/components/CustomChatModal.vue'
+
+const { status, init, open } = useCognigyWebchat()
+const { open: openCustomChat } = useCustomChat()
+const { status: cxoneStatus, init: initCXone, open: openCXone } = useCXoneWebchat()
+
+const isChatReady = computed(() => status.value === 'ready')
+const isCXoneReady = computed(() => cxoneStatus.value === 'ready')
+
+const tabs = [
+  { label: 'Insights', to: '/insights' },
+  { label: 'Email', to: '/email' },
+  { label: 'Knowledge Article', to: '/knowledge' },
+]
+
+onMounted(() => {
+  void init()
+  void initCXone()
+})
+
+const handleOpenChat = () => {
+  open()
+}
+
+const handleOpenCustomChat = () => {
+  openCustomChat()
+}
+
+const handleOpenCXoneChat = () => {
+  openCXone()
+}
+</script>
+
+<template>
+  <div class="app-shell">
+    <header class="app-header glass-panel">
+      <div class="branding">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p class="eyebrow">CXone</p>
+          <strong>Actions Studio</strong>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="ghost-button" type="button" :disabled="!isChatReady" @click="handleOpenChat">
+          {{ isChatReady ? 'Open Webchat' : 'Loading Webchat' }}
+        </button>
+        <button class="ghost-button" type="button" @click="handleOpenCustomChat">
+          Open Custom Chat
+        </button>
+        <button
+          class="ghost-button cxone-chat-btn"
+          type="button"
+          :disabled="!isCXoneReady"
+          @click="handleOpenCXoneChat"
+        >
+          {{ isCXoneReady ? 'Open CXone Chat' : 'Loading CXone Chat' }}
+        </button>
+      </div>
+    </header>
+
+    <main class="content-panel glass-panel">
+      <nav class="primary-tabs">
+        <RouterLink v-for="tab in tabs" :key="tab.to" :to="tab.to" class="tab-link">
+          {{ tab.label }}
+        </RouterLink>
+      </nav>
+      <slot />
+    </main>
+    <CustomChatModal />
+  </div>
+</template>
+
+<style scoped>
+.app-shell {
+  min-height: 100vh;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.content-panel {
+  padding: clamp(1.25rem, 2vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+</style>

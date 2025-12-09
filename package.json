@@ -3,27 +3,36 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "demo-app",
+    "sdk-app",
+    "cxone-chat",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "build:gh-pages": "cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vue-tsc -b && cross-env GITHUB_PAGES=true VITE_GITHUB_PAGES=true vite build",
-    "preview": "vite preview",
-    "deploy": "npm run build:gh-pages && gh-pages -d dist"
+    "dev": "yarn workspace demo-app dev",
+    "dev:all": "concurrently \"yarn dev\" \"yarn backend\"",
+    "backend": "node backend/server.js",
+    "build:sdk": "yarn workspace @cxone/webchat-sdk build",
+    "build:cxone-chat": "yarn workspace @cxone/chat build",
+    "build:demo": "yarn workspace demo-app build",
+    "build": "yarn build:cxone-chat && yarn build:sdk && yarn build:demo",
+    "build:gh-pages": "yarn build:cxone-chat && yarn build:sdk && yarn workspace demo-app build:gh-pages",
+    "preview": "yarn workspace demo-app preview",
+    "deploy": "yarn build:gh-pages && gh-pages -d demo-app/dist",
+    "start": "node server.production.js",
+    "start:local": "yarn build && yarn start",
+    "fly:deploy": "fly deploy",
+    "fly:logs": "fly logs"
   },
   "dependencies": {
-    "chart.js": "^4.5.1",
-    "vue": "^3.5.24",
-    "vue-chartjs": "^5.3.3",
-    "vue-router": "^4.6.3"
+    "better-sqlite3": "^9.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/tsconfig": "^0.8.1",
-    "cross-env": "^7.0.3",
-    "gh-pages": "^6.1.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.2.2",
-    "vue-tsc": "^3.1.3"
-  }
+    "concurrently": "^8.2.2",
+    "gh-pages": "^6.1.1"
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

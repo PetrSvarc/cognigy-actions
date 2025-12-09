@@ -1,0 +1,44 @@
+{
+  "name": "@cxone/chat",
+  "version": "1.0.0",
+  "description": "CXone Chat - One-liner webchat initialization script",
+  "type": "module",
+  "main": "dist/cxone-chat.js",
+  "module": "dist/cxone-chat.js",
+  "types": "dist/types/cxone-chat.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/cxone-chat.js",
+      "require": "./dist/cxone-chat.js",
+      "types": "./dist/types/cxone-chat.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "serve": "npx serve -p 8080",
+    "dev": "npm run build && npm run serve"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/node": "^20.10.0",
+    "rollup": "^4.6.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.2"
+  },
+  "keywords": [
+    "cxone",
+    "chat",
+    "webchat",
+    "cognigy"
+  ],
+  "author": "CXone Team",
+  "license": "MIT"
+}
