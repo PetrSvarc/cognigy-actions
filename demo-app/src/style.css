@@ -92,15 +92,7 @@ body::after {
   box-shadow: var(--cxone-panel-shadow);
 }
 
-.content-panel {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: min(1100px, 100%);
-  align-self: center;
-  flex: 1;
-}
+/* .content-panel styles moved to AppLayout.vue scoped styles */
 
 .header-actions {
   display: flex;
@@ -161,13 +153,23 @@ button {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-[data-cognigy-webchat-root] {
-  margin-top: 20px !important;
+.ghost-button.cxone-chat-btn {
+  background: linear-gradient(135deg, #0C3985, #3B5EFF);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(12, 57, 133, 0.3);
 }
 
-[data-cognigy-webchat-root] [data-cognigy-webchat] {
-  top: 20px !important;
+.ghost-button.cxone-chat-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(12, 57, 133, 0.4);
 }
+
+.ghost-button.cxone-chat-btn:disabled {
+  background: linear-gradient(135deg, #8ca1c5, #a8b8d4);
+  box-shadow: none;
+}
+
 
 [data-cognigy-webchat-root] button[data-cognigy-webchat-toggle] {
   display: none !important;

@@ -3,12 +3,15 @@ import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCognigyWebchat } from '@/composables/useCognigyWebchat'
 import { useCustomChat } from '@/composables/useCustomChat'
+import { useCXoneWebchat } from '@/composables/useCXoneWebchat'
 import CustomChatModal from '@/components/CustomChatModal.vue'
 
 const { status, init, open } = useCognigyWebchat()
 const { open: openCustomChat } = useCustomChat()
+const { status: cxoneStatus, init: initCXone, open: openCXone } = useCXoneWebchat()
 
 const isChatReady = computed(() => status.value === 'ready')
+const isCXoneReady = computed(() => cxoneStatus.value === 'ready')
 
 const tabs = [
   { label: 'Insights', to: '/insights' },
@@ -18,6 +21,7 @@ const tabs = [
 
 onMounted(() => {
   void init()
+  void initCXone()
 })
 
 const handleOpenChat = () => {
@@ -26,6 +30,10 @@ const handleOpenChat = () => {
 
 const handleOpenCustomChat = () => {
   openCustomChat()
+}
+
+const handleOpenCXoneChat = () => {
+  openCXone()
 }
 </script>
 
@@ -46,6 +54,14 @@ const handleOpenCustomChat = () => {
         <button class="ghost-button" type="button" @click="handleOpenCustomChat">
           Open Custom Chat
         </button>
+        <button
+          class="ghost-button cxone-chat-btn"
+          type="button"
+          :disabled="!isCXoneReady"
+          @click="handleOpenCXoneChat"
+        >
+          {{ isCXoneReady ? 'Open CXone Chat' : 'Loading CXone Chat' }}
+        </button>
       </div>
     </header>
 
@@ -60,3 +76,23 @@ const handleOpenCustomChat = () => {
     <CustomChatModal />
   </div>
 </template>
+
+<style scoped>
+.app-shell {
+  min-height: 100vh;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.content-panel {
+  padding: clamp(1.25rem, 2vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+</style>
